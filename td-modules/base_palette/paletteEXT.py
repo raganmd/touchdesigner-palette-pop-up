@@ -42,27 +42,39 @@ class PaletteExplorer:
 		self.LastSelectedToxPath.val = TOXPath
 		self.LastSelectedToxName.val = TOXName
 		self.PaletteWindow(False)
-		self.MouseClickDAT.par.active = True
-		self.PlacementWindow(True)
+		return
 
-		return TOXPath
-	
 	def GetCurrentNetworkLocation(self):
 		currentPane = ui.panes[ui.panes.current]
 		networkPath = currentPane.owner
 		return networkPath
 
+	def GetCurrentPane(self):
+		return ui.panes[ui.panes.current]
+
 	def CreatePaletteTOX(self):
-		self.MouseClickDAT.par.active = False
-		self.PlacementWindow(False)
 		networkPath = self.GetCurrentNetworkLocation()
 
-		paletteTOX = op(networkPath).loadTox(self.LastSelectedToxPath.val)
+		paletteTOX 		= op(networkPath).loadTox(self.LastSelectedToxPath.val)
+		paletteTOX.name = "tempTOX"
+		targetOp 		= paletteTOX.findChildren(type=COMP, depth=1)[0]
+		
+		# place template
+		template 		= networkPath.copy(targetOp)
+		template.nodeX 	= -1000
+		template.nodeY 	= -1000
+		# template.expose = False
+		print(template)
 
-		targetOp 	= paletteTOX.findChildren(type=COMP, depth=1)[0]
-		copyOp 		= networkPath.copy(targetOp)
-		copyOp.nodeX = 200
-
+		# destroy containing op
 		paletteTOX.destroy()
 
+		# Use TD's built in op placement toolkit
+		self.GetCurrentPane().placeOPs([template])
+		pass
+
+	def PlacePaletteTox(self, info):
+		self.FindToxToLoad(info)
+		self.CreatePaletteTOX()
+		
 		pass
