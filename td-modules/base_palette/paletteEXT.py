@@ -1,12 +1,13 @@
 
 class PaletteExplorer:
+
 	def __init__(self, myop):
 		self.MyOp 					= myop
 		self.PaletteWindowCOMP 		= op('window_palette')
 		self.PlacementWindowCOMP 	= op('window_placement')
 		self.SelectContainer 		= op('container_palette_widget/container_body/container_selected_palette')
 		self.MouseClickDAT 			= op('chopexec_click')
-	
+
 		# last selected TOX info
 		self.LastSelectedToxPath 	= tdu.Dependency(None)
 		self.LastSelectedToxName 	= tdu.Dependency(None)
@@ -53,24 +54,43 @@ class PaletteExplorer:
 		return ui.panes[ui.panes.current]
 
 	def CreatePaletteTOX(self):
-		networkPath = self.GetCurrentNetworkLocation()
+		OpBuffer 		= self.OpBufferCreate()
+		networkPath 	= self.GetCurrentNetworkLocation()
 
-		paletteTOX 		= op(networkPath).loadTox(self.LastSelectedToxPath.val)
+		paletteTOX 		= OpBuffer.loadTox(self.LastSelectedToxPath.val)
 		paletteTOX.name = "tempTOX"
 		targetOp 		= paletteTOX.findChildren(type=COMP, depth=1)[0]
-		
+
 		# place template
-		template 		= networkPath.copy(targetOp)
-		template.nodeX 	= -1000
-		template.nodeY 	= -1000
-		# template.expose = False
-		print(template)
+		template 		= OpBuffer.copy(targetOp)
+		template.nodeX 	= 200
+		template.nodeY 	= 0
 
 		# destroy containing op
 		paletteTOX.destroy()
 
 		# Use TD's built in op placement toolkit
 		self.GetCurrentPane().placeOPs([template])
+
+		# nuke our temp base
+		# self.OpBufferDestroy(OpBuffer)
+
+		pass
+
+	def OpBufferCreate(self):
+		
+		OpBuffer 		= op('/sys/base_tmp')
+
+		if OpBuffer == None:
+			OpBuffer 		= op('/sys').create(baseCOMP)
+			OpBuffer.name 	= 'base_tmp'
+			OpBuffer.nodeX 	= 0
+			OpBuffer.nodeY 	= 600
+
+		return OpBuffer
+	
+	def OpBufferDestroy(self, OpBuffer):
+		OpBuffer.destroy()
 		pass
 
 	def PlacePaletteTox(self, info):
